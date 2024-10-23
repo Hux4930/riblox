@@ -1,0 +1,88 @@
+-- Services
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer  -- This is the alt account
+
+-- Create a simple ScreenGui for feedback
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TeleportGui"
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")  -- Attach to the player's PlayerGui
+
+-- Create a TextLabel to display teleportation status
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(0, 300, 0, 50)  -- Width: 300px, Height: 50px
+statusLabel.Position = UDim2.new(0.5, -150, 0, 0)  -- Centered at the top of the screen
+statusLabel.BackgroundTransparency = 0.5  -- Semi-transparent background
+statusLabel.TextScaled = true  -- Scale text to fit the label
+statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
+statusLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
+statusLabel.Text = "Waiting for !come command..."  -- Initial message
+statusLabel.Parent = screenGui  -- Attach the label to the GUI
+
+-- Function to find the seat (if the player is sitting in one)
+local function findSeat(character)
+    -- Search for a Seat or VehicleSeat that the player is sitting in
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("Humanoid") and part.SeatPart then
+            return part.SeatPart  -- Return the seat the player is sitting on
+        end
+    end
+    return nil  -- No seat found
+end
+
+-- Teleportation function that moves the alt or the seat they are sitting on to the player's location
+local function teleportAltToPlayer(commandPlayer)
+    -- Get both characters (alt and the player who issued the command)
+    local altCharacter = LocalPlayer.Character
+    local commandPlayerCharacter = commandPlayer.Character
+
+    if altCharacter and altCharacter:FindFirstChild("HumanoidRootPart") and commandPlayerCharacter and commandPlayerCharacter:FindFirstChild("HumanoidRootPart") then
+        -- Check if the alt is sitting in a seat
+        local seat = findSeat(altCharacter)
+        
+        if seat then
+            -- Teleport the seat (and the entire object it's part of) to the player's location
+            seat.Parent:SetPrimaryPartCFrame(commandPlayerCharacter.HumanoidRootPart.CFrame)
+            statusLabel.Text = "Teleportation successful!"
+            print("[INFO] Teleportation successful!")
+        else
+            -- If no seat, just teleport the alt's character
+            altCharacter:SetPrimaryPartCFrame(commandPlayerCharacter.HumanoidRootPart.CFrame)
+            statusLabel.Text = "Teleportation successful!"
+            print("[INFO] Teleportation successful!")
+        end
+    else
+        -- Update GUI to show that teleportation failed
+        statusLabel.Text = "Teleportation failed! Character not loaded."
+        warn("[WARN] Either the alt or player's character is missing or improperly loaded!")
+    end
+end
+
+-- Function to handle chat messages
+local function onPlayerChat(player, message)
+    -- Clean up and normalize the message
+    local cleanedMessage = message:lower():gsub("%s+", "")  -- Removes spaces and makes it lowercase
+
+    -- Check if the message is the command
+    if cleanedMessage == "!come" then
+        print("[INFO] " .. player.Name .. " has issued the !come command")
+        teleportAltToPlayer(player)
+    end
+end
+
+-- Event listener for new players joining
+Players.PlayerAdded:Connect(function(player)
+    -- Connect the chat event for this player
+    player.Chatted:Connect(function(message)
+        onPlayerChat(player, message)
+    end)
+end)
+
+-- Set up chat listeners for all currently connected players
+for _, player in pairs(Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        onPlayerChat(player, message)
+    end)
+end
+
+-- Update the GUI to show that the script is ready
+statusLabel.Text = "Script is active. Waiting for !come command..."
