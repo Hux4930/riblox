@@ -53,5 +53,3 @@ for _, player in pairs(Players:GetPlayers()) do
         onPlayerChat(player, message)
     end)
 end
-
-statusLabel.Text = "Script is active. Waiting for !come command..."
