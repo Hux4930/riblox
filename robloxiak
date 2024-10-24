@@ -31,8 +31,7 @@ end
 local commandWords = {
     "!come",
     "huxcome",
-    "hux",
-    "."
+    "anotherCommand"
 }
 
 local function onPlayerChat(player, message)
@@ -41,7 +40,7 @@ local function onPlayerChat(player, message)
     for _, command in pairs(commandWords) do
         if cleanedMessage == command then
             teleportAltToPlayer(player)
-            break
+            return
         end
     end
 end
