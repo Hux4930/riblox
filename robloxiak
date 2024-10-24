@@ -1,17 +1,7 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-local statusLabel = Instance.new("TextLabel", screenGui)
-
-statusLabel.Size = UDim2.new(0, 300, 0, 50)
-statusLabel.Position = UDim2.new(0.5, -150, 0, 0)
-statusLabel.BackgroundTransparency = 0.5
-statusLabel.TextScaled = true
-statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-statusLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-statusLabel.Text = "Waiting for !come command..."
-
+-- Function to find the seat (if the player is sitting in one)
 local function findSeat(character)
     for _, part in pairs(character:GetDescendants()) do
         if part:IsA("Humanoid") and part.SeatPart then return part.SeatPart end
@@ -19,9 +9,17 @@ local function findSeat(character)
     return nil
 end
 
+-- Function to ensure the character is fully loaded and has a HumanoidRootPart
+local function ensureCharacterLoaded(player)
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10)
+    return humanoidRootPart and character or nil
+end
+
+-- Teleportation function that moves the alt or the seat they are sitting on to the player's location
 local function teleportAltToPlayer(commandPlayer)
-    local altCharacter = LocalPlayer.Character
-    local commandPlayerCharacter = commandPlayer.Character
+    local altCharacter = ensureCharacterLoaded(LocalPlayer)
+    local commandPlayerCharacter = ensureCharacterLoaded(commandPlayer)
 
     if altCharacter and commandPlayerCharacter then
         local seat = findSeat(altCharacter)
@@ -30,24 +28,26 @@ local function teleportAltToPlayer(commandPlayer)
         else
             altCharacter:SetPrimaryPartCFrame(commandPlayerCharacter.HumanoidRootPart.CFrame)
         end
-        statusLabel.Text = "Teleportation successful!"
-    else
-        statusLabel.Text = "Teleportation failed! Character not loaded."
     end
 end
 
+-- Handle chat messages
 local function onPlayerChat(player, message)
-    if message:lower():gsub("%s+", "") == "!come" then
+    local cleanedMessage = message:lower():gsub("%s+", "")
+    
+    if cleanedMessage == "!come" or cleanedMessage == "huxcome" then
         teleportAltToPlayer(player)
     end
 end
 
+-- Connect player chat to handler
 Players.PlayerAdded:Connect(function(player)
     player.Chatted:Connect(function(message)
         onPlayerChat(player, message)
     end)
 end)
 
+-- Connect existing players
 for _, player in pairs(Players:GetPlayers()) do
     player.Chatted:Connect(function(message)
         onPlayerChat(player, message)
