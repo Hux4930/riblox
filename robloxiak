@@ -1,7 +1,6 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Function to find the seat (if the player is sitting in one)
 local function findSeat(character)
     for _, part in pairs(character:GetDescendants()) do
         if part:IsA("Humanoid") and part.SeatPart then return part.SeatPart end
@@ -9,14 +8,12 @@ local function findSeat(character)
     return nil
 end
 
--- Function to ensure the character is fully loaded and has a HumanoidRootPart
 local function ensureCharacterLoaded(player)
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 10)
     return humanoidRootPart and character or nil
 end
 
--- Teleportation function that moves the alt or the seat they are sitting on to the player's location
 local function teleportAltToPlayer(commandPlayer)
     local altCharacter = ensureCharacterLoaded(LocalPlayer)
     local commandPlayerCharacter = ensureCharacterLoaded(commandPlayer)
@@ -31,23 +28,30 @@ local function teleportAltToPlayer(commandPlayer)
     end
 end
 
--- Handle chat messages
+local commandWords = {
+    "!come",
+    "huxcome",
+    "hux",
+    "."
+}
+
 local function onPlayerChat(player, message)
     local cleanedMessage = message:lower():gsub("%s+", "")
     
-    if cleanedMessage == "!come" or cleanedMessage == "huxcome" then
-        teleportAltToPlayer(player)
+    for _, command in pairs(commandWords) do
+        if cleanedMessage == command then
+            teleportAltToPlayer(player)
+            break
+        end
     end
 end
 
--- Connect player chat to handler
 Players.PlayerAdded:Connect(function(player)
     player.Chatted:Connect(function(message)
         onPlayerChat(player, message)
     end)
 end)
 
--- Connect existing players
 for _, player in pairs(Players:GetPlayers()) do
     player.Chatted:Connect(function(message)
         onPlayerChat(player, message)
