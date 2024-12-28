@@ -1,21 +1,21 @@
 return {
-    -- H
-    Vector3.new(0, 0, 0), -- Bottom left of H
-    Vector3.new(0, 11, 0), -- Top left of H
-    Vector3.new(5, 0, 0), -- Bottom right of left vertical line
-    Vector3.new(5, 11, 0), -- Top right of left vertical line
-    Vector3.new(2.5, 5.5, 0), -- Middle horizontal part of H
-
-    -- U
-    Vector3.new(0, 0, 0), -- Bottom left of U
-    Vector3.new(0, 11, 0), -- Top left of U
-    Vector3.new(5, 0, 0), -- Bottom right of U
-    Vector3.new(5, 11, 0), -- Top right of U
-    Vector3.new(2.5, 0, 0), -- Bottom middle of U
-
-    -- X
-    Vector3.new(0, 0, 0), -- Bottom left of X
-    Vector3.new(5, 11, 0), -- Top right of X
-    Vector3.new(5, 0, 0), -- Bottom right of X
-    Vector3.new(0, 11, 0), -- Top left of X
+    Vector3.new(0, 0, 0),
+    Vector3.new(0, 11, 0),
+    Vector3.new(5, 0, 0),
+    Vector3.new(5, 11, 0),
+    Vector3.new(2.5, 5.5, 0),
+    Vector3.new(0, 0, 0),
+    Vector3.new(0, 11, 1),
+    Vector3.new(5, 0, 1),
+    Vector3.new(5, 11, 1),
+    Vector3.new(2.5, 5.5, 1),
+    Vector3.new(5, 0, 0),
+    Vector3.new(0, 11, 0),
+    Vector3.new(0, 0, 1),
+    Vector3.new(5, 11, 1),
+    Vector3.new(5, 0, 1),
+    Vector3.new(0, 11, 1),
+    Vector3.new(5, 0, 0),
+    Vector3.new(0, 11, 1),
+    Vector3.new(5, 0, 1)
 }
