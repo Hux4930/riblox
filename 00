@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sphere Path Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sphere Path Generator</h1>
+        
+        <!-- Input fields to customize the sphere generation -->
+        <div class="form-group">
+            <label for="numPoints">Number of Points per Circle:</label>
+            <input type="number" id="numPoints" value="36" min="1">
+        </div>
+        
+        <div class="form-group">
+            <label for="radius">Initial Radius:</label>
+            <input type="number" id="radius" value="12" min="1">
+        </div>
+
+        <!-- Checkbox to toggle sphere generation -->
+        <div class="checkbox-group">
+            <label for="generateSphere">Generate Sphere:</label>
+            <input type="checkbox" id="generateSphere">
+        </div>
+
+        <button id="generateButton">Generate & Download</button>
+    </div>
+
+    <script>
+        // Function to generate the sphere path
+        function generateSpherePath(radius, numPoints) {
+            let points = [];
+            let step = (2 * Math.PI) / numPoints;  // Step size for theta (angle)
+            let zStep = 0.1;  // Z-coordinate will change by 0.1 each time
+
+            // Add return { at the beginning
+            points.push('return {');
+
+            // Generate the points starting from (12, 0, 0)
+            let allPoints = [];
+
+            // Start from (12, 0, 0) and decrease Z as we generate the path
+            for (let z = 0; z <= radius; z += zStep) {
+                let currentRadius = Math.sqrt(radius * radius - z * z);  // Calculate the radius for the current Z level
+
+                // Generate the circle in the XY plane for each Z level
+                let circlePoints = [];
+                for (let i = 0; i < numPoints; i++) {
+                    let angle = i * step;
+                    let x = currentRadius * Math.cos(angle);
+                    let y = currentRadius * Math.sin(angle);
+                    // Start from (12, 0, 0) and move the points accordingly
+                    if (z === 0 && i === 0) {
+                        x = 12; // Keep the starting point fixed at (12, 0, 0)
+                        y = 0;
+                    }
+                    circlePoints.push(`    Vector3.new(${x.toFixed(6)}, ${y.toFixed(6)}, ${z.toFixed(6)}),`);
+                }
+                allPoints.push(circlePoints);
+            }
+
+            // Add the bottom half of the sphere (Z = -0.1 to Z = -12)
+            for (let z = zStep; z <= radius; z += zStep) {
+                let currentRadius = Math.sqrt(radius * radius - z * z);  // Calculate the radius for the current Z level
+
+                // Generate the circle in the XY plane for each Z level
+                let circlePoints = [];
+                for (let i = 0; i < numPoints; i++) {
+                    let angle = i * step;
+                    let x = currentRadius * Math.cos(angle);
+                    let y = currentRadius * Math.sin(angle);
+                    circlePoints.push(`    Vector3.new(${x.toFixed(6)}, ${y.toFixed(6)}, ${(-z).toFixed(6)}),`);
+                }
+                allPoints.push(circlePoints);
+            }
+
+            // Flatten the points array and format them properly
+            allPoints.forEach(circle => points.push(...circle));
+
+            // Remove the final comma from the last element
+            points[points.length - 1] = points[points.length - 1].replace(/,$/, '');
+
+            // Add closing } at the end
+            points.push('}');
+
+            return points;
+        }
+
+        // Function to download the generated points as a .txt file
+        function downloadTextFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+
+        // Event listener for the Generate & Download button
+        document.getElementById('generateButton').addEventListener('click', () => {
+            const numPoints = parseInt(document.getElementById('numPoints').value);
+            const radius = parseFloat(document.getElementById('radius').value);
+            const generateSphere = document.getElementById('generateSphere').checked;
+
+            // Check if the sphere generation is enabled
+            if (generateSphere) {
+                // Generate the sphere points
+                const points = generateSpherePath(radius, numPoints);
+
+                // Prepare the content for download with curly braces surrounding the points
+                const fileContent = `${points.join('\n')}`;
+
+                // Download the file
+                downloadTextFile(fileContent, 'sphere_path.txt');
+            } else {
+                alert('Please enable "Generate Sphere" to proceed!');
+            }
+        });
+    </script>
+
+</body>
+</html>
