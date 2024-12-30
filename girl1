@@ -1,5 +1,5 @@
 return {
-  Vector3.new(21.40, 39.80, 0),
+	Vector3.new(21.40, 39.80, 0),
 	Vector3.new(21.40, 39.90, 0),
 	Vector3.new(21.50, 41.80, 0),
 	Vector3.new(21.60, 27.00, 0),
