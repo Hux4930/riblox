@@ -1,4 +1,4 @@
-return{
+return {
 	Vector3.new(15.10, 18.30, 0),
 	Vector3.new(15.10, 18.40, 0),
 	Vector3.new(15.00, 22.20, 0),
