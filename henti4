@@ -7907,4 +7907,4 @@ return {
 	Vector3.new(25.32, 7.20, 0),
 	Vector3.new(25.40, 6.92, 0),
 	Vector3.new(25.44, 6.72, 0)
-+
+}
